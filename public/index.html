@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+
+
+	<h2>Hello, <span id="username">unknown person</span></h2>
+	
+	<ul id="providers"></ul>
+	
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/html" id="nonConfiguredTemplate">
+<li>Provider: <%= provider %>: <a href="<%= clientSignup %>">Create client id and secret</a></li>
+</script>
+<script type="text/html" id="authenticatedTemplate">
+<li>Logged in: <%= provider %>: <%= username %></li>
+</script>
+<script type="text/html" id="loginTemplate">
+<li>Not logged in: <%= provider %>: <a href="<%= url %>">Login</a></li></li>
+</script>
+    <script>
+$(function() {
+	var nonConfiguredTemplate = _.template($("#nonConfiguredTemplate").text());
+	var authenticatedTemplate = _.template($("#authenticatedTemplate").text());
+	var loginTemplate = _.template($("#loginTemplate").text());
+	$.getJSON("/userinfo", function(data) {
+		$("#username").text(data.username);
+
+		$("#providers").empty();
+		for (var i=0; i<data.providers.length; i++) {
+			if (data.providers[i].username) {
+				$("#providers").append(authenticatedTemplate(data.providers[i]));				
+			} else if (data.providers[i].url) {
+				$("#providers").append(loginTemplate(data.providers[i]));				
+			} else {
+				$("#providers").append(nonConfiguredTemplate(data.providers[i]));				
+			}
+		}
+	});
+});
+    </script>
+</html>
